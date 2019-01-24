@@ -1,0 +1,15 @@
+# https://docs.docker.com/compose/compose-file/
+# https://docs.docker.com/engine/reference/commandline/cli/
+# https://docs.docker.com/compose/compose-file/compose-versioning/
+# https://docs.docker.com/engine/reference/commandline/volume_create
+version: '3'
+networks:
+  go_hello_crd_controller_network: {}
+services:
+  go_hello_crd_controller:
+    # build: .
+    image: cclhsu/go_hello_crd_controller:latest
+    container_name: go_hello_crd_controller
+    hostname: go_hello_crd_controller
+    ports:
+      - 8080:8080
