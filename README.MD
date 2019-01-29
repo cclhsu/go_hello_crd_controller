@@ -41,7 +41,57 @@ go test
 
 #### Run use kubernetes
 
-TBD
+1. Setup Minikube or kubernetes on docker for desktop
+2. Deploy pod and service
+
+```
+docker pull cclhsu/go_hello_crd_controller:latest
+cd <SRC_ROOT>/go_hello_crd_controller/cmd/crd-controller/k8s
+kubectl create -f go-hello-crd-controller-deployment.yaml
+kubectl create -f go-hello-crd-controller-service.yaml
+kubectl create -f go-hello-crd-controller-gateway.yaml
+kubectl create -f go-hello-crd-controller-virtual-service.yaml
+```
+
+```
+istioctl kube-inject -f go-hello-crd-controller-istio-spec.yaml | kubectl apply -f -
+kubectl get svc istio-ingressgateway -n istio-system
+```
+
+3. Check if deployments and services is working process
+
+```
+kubectl describe deployment go-hello-crd-controller
+kubectl get deployments
+kubectl get services
+kubectl get gateways
+kubectl get virtualservices
+```
+
+4. Check for the exposed port "8080:30549/TCP".  Externally, we will access 30549.
+
+```
+15004921clarkhsu:k8s clark_hsu$ kubectl get services
+NAME                      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+go-hello-crd-controller   NodePort    10.98.129.171   <none>        8080:30549/TCP   8s
+kubernetes                ClusterIP   10.96.0.1       <none>        443/TCP          34m
+```
+
+```
+http://localhost:30549/api/v1/resources
+```
+
+5. Delete pod and service
+```
+kubectl delete -f go-hello-crd-controller-service.yaml
+kubectl delete -f go-hello-crd-controller-deployment.yaml
+kubectl delete -f go-hello-crd-controller-gateway.yaml
+kubectl delete -f go-hello-crd-controller-virtual-service.yaml
+```
+
+```
+kubectl delete -f helloworld-istio-spec.yaml
+```
 
 ### Use API
 

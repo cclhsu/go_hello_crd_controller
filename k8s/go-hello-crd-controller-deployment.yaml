@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-hello-crd-controller-deployment
+  labels:
+    app: go-hello-crd-controller
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: go-hello-crd-controller
+  template:
+    metadata:
+      labels:
+        app: go-hello-crd-controller
+    spec:
+      containers:
+      - name: go-hello-crd-controller
+        image: cclhsu/go_hello_crd_controller:latest
+        imagePullPolicy: IfNotPresent #Always
+        ports:
+        - containerPort: 8080

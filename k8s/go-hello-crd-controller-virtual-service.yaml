@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: go-hello-crd-controller
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - go-hello-crd-controller-gateway
+  http:
+  - route:
+    - destination:
+        host: go-hello-crd-controller
+        port:
+          number: 8080

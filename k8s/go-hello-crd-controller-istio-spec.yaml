@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-hello-crd-controller
+  labels:
+    app: go-hello-crd-controller
+spec:
+  selector:
+    app: go-hello-crd-controller
+  # type: NodePort
+  ports:
+  - port: 8080
+    name: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-hello-crd-controller-deployment
+  labels:
+    app: go-hello-crd-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: go-hello-crd-controller
+  template:
+    metadata:
+      labels:
+        app: go-hello-crd-controller
+    spec:
+      containers:
+      - name: go-hello-crd-controller
+        image: cclhsu/go_hello_crd_controller:latest
+        imagePullPolicy: IfNotPresent #Always
+        ports:
+        - containerPort: 8080
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: go-hello-crd-controller-gateway
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: go-hello-crd-controller-virtualservice
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - go-hello-crd-controller-gateway
+  http:
+  - route:
+    - destination:
+        host: go-hello-crd-controller
+        port:
+          number: 8080
+---
