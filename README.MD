@@ -36,7 +36,7 @@ go test
 
 1. Build Docker
 2. Use command "docker-compose up" to bring up the docker
-3. Open browser on "http://localhost:8080/api/v1/resources" to get list of current resources
+3. Open browser on "http://localhost:5000/api/v1/resources" to get list of current resources
 4. Use command "docker-compose down" to bring down the docker
 
 #### Run use kubernetes
@@ -44,36 +44,57 @@ go test
 1. Setup Minikube or kubernetes on docker for desktop
 2. Deploy pod and service
 
+Using kubernetes:
+
 ```
 docker pull cclhsu/go_hello_crd_controller:latest
 cd <SRC_ROOT>/go_hello_crd_controller/cmd/crd-controller/k8s
 kubectl create -f go-hello-crd-controller-deployment.yaml
 kubectl create -f go-hello-crd-controller-service.yaml
-kubectl create -f go-hello-crd-controller-gateway.yaml
-kubectl create -f go-hello-crd-controller-virtual-service.yaml
 ```
 
+<!-- ```
+# Use only when kube-inject enable automatic
+# kubectl create -f go-hello-crd-controller-gateway.yaml
+# kubectl create -f go-hello-crd-controller-virtual-service.yaml
+``` -->
+
+Using istio:
+
 ```
+docker pull cclhsu/go_hello_crd_controller:latest
+cd <SRC_ROOT>
 istioctl kube-inject -f go-hello-crd-controller-istio-spec.yaml | kubectl apply -f -
-kubectl get svc istio-ingressgateway -n istio-system
 ```
+<!-- istioctl kube-inject -f helloworld.yaml | kubectl apply -f - -->
 
 3. Check if deployments and services is working process
+
+Using kubernetes:
 
 ```
 kubectl describe deployment go-hello-crd-controller
 kubectl get deployments
+kubectl get pods
 kubectl get services
-kubectl get gateways
-kubectl get virtualservices
 ```
 
-4. Check for the exposed port "8080:30549/TCP".  Externally, we will access 30549.
+Using istio:
+
+```
+kubectl get gateways
+kubectl get virtualservices
+# kubectl get service -n istio-system
+kubectl get service istio-ingressgateway -n istio-system
+kubectl get service istio-egressgateway -n istio-system
+```
+
+4. Check for the exposed port "5000:30549/TCP".  Externally, we will access 30549.
 
 ```
 15004921clarkhsu:k8s clark_hsu$ kubectl get services
 NAME                      TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
-go-hello-crd-controller   NodePort    10.98.129.171   <none>        8080:30549/TCP   8s
+go-hello-crd-controller   NodePort    10.98.129.171   <none>        5000:30549/TCP   8s
 kubernetes                ClusterIP   10.96.0.1       <none>        443/TCP          34m
 ```
 
@@ -82,43 +103,94 @@ http://localhost:30549/api/v1/resources
 ```
 
 5. Delete pod and service
+
+Using kubernetes:
+
 ```
 kubectl delete -f go-hello-crd-controller-service.yaml
 kubectl delete -f go-hello-crd-controller-deployment.yaml
-kubectl delete -f go-hello-crd-controller-gateway.yaml
-kubectl delete -f go-hello-crd-controller-virtual-service.yaml
 ```
 
+<!-- ```
+kubectl delete -f go-hello-crd-controller-gateway.yaml
+kubectl delete -f go-hello-crd-controller-virtual-service.yaml
+``` -->
+
+Using istio:
+
 ```
-kubectl delete -f helloworld-istio-spec.yaml
+kubectl delete --ignore-not-found=true -f go-hello-crd-controller-istio-spec.yaml
 ```
+<!-- kubectl delete -f helloworld.yaml -->
 
 ### Use API
 
 #### GET api/v1/resources
 
-    curl -i http://localhost:8080/api/v1/resources
+Using Docker or K8S:
+
+    curl -i http://localhost:5000/api/v1/resources
+
+Using ISTIO:
+
+    curl -i http://localhost/api/v1/resources
 
 #### GET api/v1/resources/:id
 
-    curl -i http://localhost:8080/api/v1/resources/1
+Using Docker or K8S:
+
+    curl -i http://localhost:5000/api/v1/resources/1
+
+Using ISTIO:
+
+    curl -i http://localhost/api/v1/resources/1
 
 #### POST api/v1/resources
 
-    curl -i -X POST -H "Content-Type: application/json" -d "{\"name\":\"A\",\"enable\":false,\"state\":\"\"}" http://localhost:8080/api/v1/resources
+Using Docker or K8S:
+
+    curl -i -X POST -H "Content-Type: application/json" -d "{\"name\":\"A\",\"enable\":false,\"state\":\"\"}" http://localhost:5000/api/v1/resources
+
+Using ISTIO:
+
+    curl -i -X POST -H "Content-Type: application/json" -d "{\"name\":\"A\",\"enable\":false,\"state\":\"\"}" http://localhost/api/v1/resources
 
 #### PUT api/v1/resources/:id
 
-    curl -i -X PUT -H "Content-Type: application/json" -d "{\"name\":\"B\",\"enable\":false,\"state":\"\"}" http://localhost:8080/api/v1/resources/1
+Using Docker or K8S:
+
+    curl -i -X PUT -H "Content-Type: application/json" -d "{\"name\":\"B\",\"enable\":false,\"state":\"\"}" http://localhost:5000/api/v1/resources/1
+
+Using ISTIO:
+
+    curl -i -X PUT -H "Content-Type: application/json" -d "{\"name\":\"B\",\"enable\":false,\"state":\"\"}" http://localhost/api/v1/resources/1
 
 #### DELETE api/v1/resources/:id
 
-    curl -i -X DELETE http://localhost:8080/api/v1/resources/1
+Using Docker or K8S:
+
+    curl -i -X DELETE http://localhost:5000/api/v1/resources/1
+
+Using ISTIO:
+
+    curl -i -X DELETE http://localhost/api/v1/resources/1
 
 #### GET api/v1/resources/:id/health
 
-    curl -i http://localhost:8080/api/v1/resources/1/health
+Using Docker or K8S:
+
+    curl -i http://localhost:5000/api/v1/resources/1/health
+
+Using ISTIO:
+
+    curl -i http://localhost/api/v1/resources/1/health
 
 #### PUT api/v1/resources/:id/health
 
-    curl -i -X PUT -H "Content-Type: application/json" -d "{ \"name\":"A\",\"enable\":true,\"state\":"1\" }" http://localhost:8080/api/v1/resources/1
+Using Docker or K8S:
+
+    curl -i -X PUT -H "Content-Type: application/json" -d "{ \"name\":"A\",\"enable\":true,\"state\":"1\" }" http://localhost:5000/api/v1/resources/1
+
+Using ISTIO:
+
+    curl -i -X PUT -H "Content-Type: application/json" -d "{ \"name\":"A\",\"enable\":true,\"state\":"1\" }" http://localhost/api/v1/resources/1

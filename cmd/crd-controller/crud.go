@@ -2,6 +2,8 @@ package main
 
 import (
 	resources "go_hello_crd_controller/cmd/crd-controller/db/sqlite3"
+	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,13 +15,29 @@ import (
 // 	}
 // }
 
+func GetHellos(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Hello, World!",
+	})
+	// curl -i http://localhost:8080/
+}
+
+func GetHello(c *gin.Context) {
+	c.String(http.StatusOK, "Hello, World!")
+	// curl -i http://localhost:8080/hello
+}
+
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
 
 	// router.Use(Cors())
 
-	v1 := router.Group("api/v1")
+	v1 := router.Group("/")
+	// v1 := router.Group("/api/v1")
 	{
+		v1.GET("/", GetHellos)
+		v1.GET("/hello", GetHello)
+
 		v1.POST("/table", resources.CreateResourceTable)
 		v1.DELETE("/table", resources.DropResourceTable)
 
@@ -37,6 +55,10 @@ func SetupRouter() *gin.Engine {
 }
 
 func main() {
+	endpoint := ":5000"
 	router := SetupRouter()
-	router.Run() // listen and server on 0.0.0.0:8080
+	err := router.Run(endpoint) // listen and server on 0.0.0.0:5000
+	if err != nil {
+		log.Fatalf("Failed to run server: %v", err)
+	}
 }

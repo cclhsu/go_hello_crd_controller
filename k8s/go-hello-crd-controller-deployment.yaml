@@ -1,7 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: go-hello-crd-controller-deployment
+  name: go-hello-crd-controller
+  # namespace: hello
   labels:
     app: go-hello-crd-controller
 spec:
@@ -17,6 +18,8 @@ spec:
       containers:
       - name: go-hello-crd-controller
         image: cclhsu/go_hello_crd_controller:latest
-        imagePullPolicy: IfNotPresent #Always
+        imagePullPolicy: IfNotPresent # Always | Never | IfNotPresent
         ports:
-        - containerPort: 8080
+        - name: crud-ctrl-svc
+          containerPort: 5000
+          protocol: TCP

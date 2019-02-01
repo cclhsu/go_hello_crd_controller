@@ -76,7 +76,6 @@ install_dependency_packages:
 	export PATH="${PATH}:$(shell go env GOPATH)/bin" && \
 	go get -u <URL>
 
-
 # .PHONY: build
 # build:
 # 	# export GOPATH=${TOP_DIR}
@@ -91,38 +90,40 @@ install_dependency_packages:
 # 	go env && \
 # 	$(COMMAND) go build -o ${TOP_DIR}/bin/app app
 
-.PHONY: compile_linux
-compile_linux:
-	# export GOPATH=${TOP_DIR}
-	export GOBIN=${TOP_DIR}/bin && \
-	export GOOS=linux && \
-	export GOARCH=amd64 && \
-	go env && \
-	$(COMMAND) go install ${TOP_DIR}/src/hello.go
+# .PHONY: compile_linux
+# compile_linux:
+# 	# export GOPATH=${TOP_DIR}
+# 	export GOBIN=${TOP_DIR}/bin && \
+# 	export GOOS=linux && \
+# 	export GOARCH=amd64 && \
+# 	go env && \
+# 	$(COMMAND) go install ${TOP_DIR}/src/hello.go
 
 .PHONY: compile
 compile:
 	# export GOPATH=${TOP_DIR}
 	export GOBIN=${TOP_DIR}/bin && \
 	go env && \
-	$(COMMAND) go install ${TOP_DIR}/src/hello.go
+	$(COMMAND) go install ${TOP_DIR}/cmd/crd-controller
 
 .PHONY: install
 install:
 	# export GOPATH=${TOP_DIR}
 	export GOBIN=${TOP_DIR}/bin && \
 	go env && \
-	$(COMMAND) go install app
+	$(COMMAND) go install ${TOP_DIR}/cmd/crd-controller
 
 .PHONY: run
 run:
-	$(COMMAND) ./bin/hello || :
-	$(COMMAND) ./bin/app || :
+	# $(COMMAND) ./bin/hello || :
+	# $(COMMAND) ./bin/app || :
+	$(COMMAND) ./bin/crd-controller || :
 
 .PHONY: script
 script:
 	@# ./hello.sh
-	$(COMMAND) go run ${TOP_DIR}/src/hello.go
+	# $(COMMAND) go run ${TOP_DIR}/src/hello.go
+	$(COMMAND) go run ${TOP_DIR}/cmd/crd-controller/crud.go
 
 .PHONY: package
 package:

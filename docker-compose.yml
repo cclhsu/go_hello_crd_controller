@@ -12,4 +12,4 @@ services:
     container_name: go_hello_crd_controller
     hostname: go_hello_crd_controller
     ports:
-      - 8080:8080
+      - 5000:5000
